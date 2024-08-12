@@ -1,11 +1,11 @@
 import datetime
 import time
-import RPI.GPIO as GPIO
+import RPi.GPIO as GPIO
 import threading
 
 GPIO.setmode(GPIO.BCM)
-gpio_list_leds = [16, 18, 19, 21, 22, 23, 24, 26, 27]
-gpio_list_buttons = [38, 40]
+gpio_list_leds = [8, 21, 11, 12, 13, 15, 16, 18, 19]
+gpio_list_buttons = [22, 24]
 
 
 class Player:
@@ -30,11 +30,9 @@ class GameManager:
         GPIO.setmode(GPIO.BCM)
 
     def start_game(self):
-        GPIO.cleanup()
         self.game_loop()
 
     def game_loop(self):
-        GPIO.setup()
         input_manager = InputManager(gpio_list_buttons[0], gpio_list_buttons[1])
         threading.Thread(target=input_manager.input_change_sign_view()).start()
         while not self.winning:
@@ -100,19 +98,21 @@ class GameManager:
 
     @staticmethod
     def draw_board(board, sign):
-        sign_to_render = None
+	sign_to_render = None
         if sign == "X":
-            sign_to_render = sign
+		sign_to_render = sign
         elif sign == "0":
-            sign_to_render = sign
+		sign_to_render = sign
         else:
             raise Exception
 
         for i in range(len(board) - 1):
-            if board[i] == sign_to_render:
-                GPIO.setup(gpio_list_leds[i], GPIO.OUT)
+	if board[i] == sign_to_render:
+		GPIO.setup(gpio_list_leds[i], GPIO.OUT)
                 GPIO.output(gpio_list_leds[i], GPIO.HIGH)
-
+	else:
+		GPIO.setup(gpio_list_leds[i], GPIO.OUT)
+		GPIO.output(gpio_list_leds[i], GPIO.LOW)
 
 class InputManager:
     def __init__(self, buttonLeftPin, buttonRightPin):
