@@ -46,8 +46,6 @@ class GameManager:
                 if self.check_for_win():
                     self.winning = True
                     self.winner = self.currentPlayer.id
-                else:
-                    self.next_player()
         self.draw_board(self.currentPlayer.winningBoard, self.currentPlayer.sign)
 
     def possible_to_place(self):
@@ -60,17 +58,17 @@ class GameManager:
     def next_player(self):
         if self.currentPlayer.id == 1:
             self.currentPlayer = self.player2
-
         else:
             self.currentPlayer = self.player1
 
     def get_current_player_id(self):
         return self.currentPlayer.id
 
-    def place_sign(self, pos):
+    def place_sign_and_next_player(self, pos):
         if self.allowed_to_place_pos(pos):
             self.board[pos] = self.currentPlayer.sign
             self.currentPlayer.placedPos[pos] = self.currentPlayer.sign
+            self.next_player()
             return True
         else:
             return False
@@ -152,7 +150,7 @@ class InputManager:
             else:
                 self.second_click = time.time()
             if self.second_click - self.first_click > 0.2:
-                gameManager.place_sign(self.current_place_pos)
+                gameManager.place_sign_and_next_player(self.current_place_pos)
                 self.first_click = None
                 self.second_click = None
             else:
