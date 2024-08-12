@@ -66,6 +66,8 @@ class GameManager:
         if self.allowed_to_place_pos(pos):
             self.board[pos] = self.currentPlayer.sign
             self.currentPlayer.placedPos[pos] = self.currentPlayer.sign
+            print("last player was" + str(self.currentPlayer.id))
+            print("places at " + str(pos))
             self.next_player()
             return True
         else:
