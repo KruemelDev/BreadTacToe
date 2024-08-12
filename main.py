@@ -133,12 +133,13 @@ class InputManager:
             if self.board_to_draw == 1:
                 GameManager.draw_board(player2.placedPos, player2.sign)
                 self.board_to_draw = 2
+                time.sleep(0.15)
                 print("draw_board 1")
             elif self.board_to_draw == 2:
                 GameManager.draw_board(player1.placedPos, player1.sign)
                 self.board_to_draw = 1
                 print("draw_board 2")
-                time.sleep(1.0)
+                time.sleep(0.15)
 
     def left_button(self):
 
@@ -153,8 +154,12 @@ class InputManager:
                 self.second_click = 0
             else:
                 if not self.current_place_pos == 8:
+                    self.first_click = 0
+                    self.second_click = 0
                     self.current_place_pos += 1
                 else:
+                    self.first_click = 0
+                    self.second_click = 0x
                     self.current_place_pos = 0
 
 
