@@ -98,21 +98,22 @@ class GameManager:
 
     @staticmethod
     def draw_board(board, sign):
-	sign_to_render = None
+        sign_to_render = None
         if sign == "X":
-		sign_to_render = sign
+            sign_to_render = sign
         elif sign == "0":
-		sign_to_render = sign
+            sign_to_render = sign
         else:
             raise Exception
 
         for i in range(len(board) - 1):
-	if board[i] == sign_to_render:
-		GPIO.setup(gpio_list_leds[i], GPIO.OUT)
+            if board[i] == sign_to_render:
+                GPIO.setup(gpio_list_leds[i], GPIO.OUT)
                 GPIO.output(gpio_list_leds[i], GPIO.HIGH)
-	else:
-		GPIO.setup(gpio_list_leds[i], GPIO.OUT)
-		GPIO.output(gpio_list_leds[i], GPIO.LOW)
+            else:
+                GPIO.setup(gpio_list_leds[i], GPIO.OUT)
+                GPIO.output(gpio_list_leds[i], GPIO.LOW)
+
 
 class InputManager:
     def __init__(self, buttonLeftPin, buttonRightPin):
