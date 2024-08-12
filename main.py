@@ -1,11 +1,12 @@
-import datetime
 import time
 import RPi.GPIO as GPIO
 import threading
+import asyncio
 
-GPIO.setmode(GPIO.BCM)
-gpio_list_leds = [8, 21, 11, 12, 13, 15, 16, 18, 19]
-gpio_list_buttons = [22, 24]
+GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
+gpio_list_leds = [8, 11, 13, 15, 16, 18, 19, 21, 22]
+gpio_list_buttons = [24, 26]
 
 
 class Player:
@@ -27,14 +28,19 @@ class GameManager:
         self.currentPlayer = player1
         self.winner = None
         self.winning = False
-        GPIO.setmode(GPIO.BCM)
 
     def start_game(self):
-        self.game_loop()
+        asyncio.run(self.game_loop())
 
-    def game_loop(self):
+    async def game_loop(self):
+        
         input_manager = InputManager(gpio_list_buttons[0], gpio_list_buttons[1])
-        threading.Thread(target=input_manager.input_change_sign_view()).start()
+        
+        begin_screen = ["", "X", "", "X", "X", "X","", "X", ""]
+        print("hier")
+ 
+        self.draw_board(begin_screen, "X")
+        await asyncio.create_task(input_manager.input_change_sign_view())
         while not self.winning:
             if self.possible_to_place():
                 self.currentPlayer.place(input_manager)
@@ -98,18 +104,12 @@ class GameManager:
 
     @staticmethod
     def draw_board(board, sign):
-        sign_to_render = None
-        if sign == "X":
-            sign_to_render = sign
-        elif sign == "0":
-            sign_to_render = sign
-        else:
-            raise Exception
 
-        for i in range(len(board) - 1):
-            if board[i] == sign_to_render:
+        for i in range(len(board)):
+            if board[i] == sign:
                 GPIO.setup(gpio_list_leds[i], GPIO.OUT)
                 GPIO.output(gpio_list_leds[i], GPIO.HIGH)
+                print("on")
             else:
                 GPIO.setup(gpio_list_leds[i], GPIO.OUT)
                 GPIO.output(gpio_list_leds[i], GPIO.LOW)
@@ -121,14 +121,25 @@ class InputManager:
         self.buttonRightPin = buttonRightPin
         GPIO.setup(self.buttonLeftPin, GPIO.IN)
         GPIO.setup(self.buttonRightPin, GPIO.IN)
+        self.board_to_draw = 1
 
-    def input_change_sign_view(self):
+    async def input_change_sign_view(self):
         while not gameManager.winning:
-            if GPIO.input(self.buttonLeftPin) == 1:
-                if gameManager.get_current_player_id() == 1:
-                    GameManager.draw_board(player1.placedPos, player1.sign)
-                else:
+            await asyncio.sleep(0.3)
+            print(GPIO.input(self.buttonRightPin))
+            if GPIO.input(self.buttonRightPin) == 1:
+                if self.board_to_draw == 1:
                     GameManager.draw_board(player2.placedPos, player2.sign)
+                    self.board_to_draw = 2
+                    print("draw_board 1")
+                    await asyncio.sleep(1.0)
+                    continue
+                elif self.board_to_draw == 2:
+                    GameManager.draw_board(player1.placedPos, player1.sign)
+                    self.board_to_draw = 1
+                    print("draw_board 2")
+                    time.sleep(1.0)
+                    continue
 
     def input_place(self):
         current_place_pos = 0
@@ -149,9 +160,9 @@ class InputManager:
                 else:
                     current_place_pos += 1
 
-
+    
 if __name__ == "__main__":
-    player1 = Player("1", "X")
-    player2 = Player("2", "0")
+    player1 = Player(1, "X")
+    player2 = Player(2, "0")
     gameManager = GameManager(player1, player2)
     gameManager.start_game()
