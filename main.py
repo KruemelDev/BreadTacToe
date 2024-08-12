@@ -122,7 +122,12 @@ class InputManager:
         GPIO.setup(self.buttonRightPin, GPIO.IN)
         self.board_to_draw = 1
 
+        self.first_click = None
+        self.second_click = None
+        self.current_place_pos = 0
+
     def input_handling(self):
+        print("in input_handling")
         self.right_button()
         self.left_button()
 
@@ -140,18 +145,21 @@ class InputManager:
                 time.sleep(1.0)
 
     def left_button(self):
-        current_place_pos = 0
-        first_click = None
-        second_click = None
+
         if GPIO.input(self.buttonLeftPin):
-            if first_click is None:
-                first_click = time.time()
+            if self.first_click is None:
+                self.first_click = time.time()
             else:
-                second_click = time.time()
-            if second_click - first_click > 0.2:
-                gameManager.place_sign(current_place_pos)
+                self.second_click = time.time()
+            if self.second_click - self.first_click > 0.2:
+                gameManager.place_sign(self.current_place_pos)
+                self.first_click = None
+                self.second_click = None
             else:
-                current_place_pos += 1
+                if not self.current_place_pos == 8:
+                    self.current_place_pos += 1
+                else:
+                    self.current_place_pos = 0
 
 
 if __name__ == "__main__":
