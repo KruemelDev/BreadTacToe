@@ -14,7 +14,7 @@ class Player:
         self.id = id
         self.sign = sign
         self.placedPos = ["", "", "", "", "", "", "", "", ""]
-        self.winningBoard = ["", "", "", "", "", "", "", "", "", ""]
+        self.winningBoard = ["", "", "", "X", "", "X", "X", "", "", ""]
 
     def place(self, inputManager):
         inputManager.place(self.placedPos)
@@ -30,9 +30,9 @@ class GameManager:
         self.winning = False
 
     def start_game(self):
-        asyncio.run(self.game_loop())
+        self.game_loop()
 
-    async def game_loop(self):
+    def game_loop(self):
         
         input_manager = InputManager(gpio_list_buttons[0], gpio_list_buttons[1])
         
@@ -40,10 +40,9 @@ class GameManager:
         print("hier")
  
         self.draw_board(begin_screen, "X")
-        await asyncio.create_task(input_manager.input_change_sign_view())
         while not self.winning:
             if self.possible_to_place():
-                self.currentPlayer.place(input_manager)
+                input_manager.input_handling()
                 if self.check_for_win():
                     self.winning = True
                     self.winner = self.currentPlayer.id
@@ -123,44 +122,38 @@ class InputManager:
         GPIO.setup(self.buttonRightPin, GPIO.IN)
         self.board_to_draw = 1
 
-    async def input_change_sign_view(self):
-        while not gameManager.winning:
-            await asyncio.sleep(0.3)
-            print(GPIO.input(self.buttonRightPin))
-            if GPIO.input(self.buttonRightPin) == 1:
-                if self.board_to_draw == 1:
-                    GameManager.draw_board(player2.placedPos, player2.sign)
-                    self.board_to_draw = 2
-                    print("draw_board 1")
-                    await asyncio.sleep(1.0)
-                    continue
-                elif self.board_to_draw == 2:
-                    GameManager.draw_board(player1.placedPos, player1.sign)
-                    self.board_to_draw = 1
-                    print("draw_board 2")
-                    time.sleep(1.0)
-                    continue
+    def input_handling(self):
+        self.right_button()
+        self.left_button()
 
-    def input_place(self):
+    def right_button(self):
+        print(GPIO.input(self.buttonRightPin))
+        if GPIO.input(self.buttonRightPin) == 1:
+            if self.board_to_draw == 1:
+                GameManager.draw_board(player2.placedPos, player2.sign)
+                self.board_to_draw = 2
+                print("draw_board 1")
+            elif self.board_to_draw == 2:
+                GameManager.draw_board(player1.placedPos, player1.sign)
+                self.board_to_draw = 1
+                print("draw_board 2")
+                time.sleep(1.0)
+
+    def left_button(self):
         current_place_pos = 0
-        GPIO.setup(self.buttonLeftPin, GPIO.IN)
         first_click = None
         second_click = None
-        while True:
-            if GPIO.input(self.buttonLeftPin):
-                if first_click is None:
-                    first_click = time.time()
-                else:
-                    second_click = time.time()
-                if second_click - first_click > 0.2:
-                    if gameManager.place_sign(current_place_pos):
-                        break
-                    first_click = None
-                    second_click = None
-                else:
-                    current_place_pos += 1
+        if GPIO.input(self.buttonLeftPin):
+            if first_click is None:
+                first_click = time.time()
+            else:
+                second_click = time.time()
+            if second_click - first_click > 0.2:
+                gameManager.place_sign(current_place_pos)
+            else:
+                current_place_pos += 1
 
-    
+
 if __name__ == "__main__":
     player1 = Player(1, "X")
     player2 = Player(2, "0")
