@@ -1,7 +1,5 @@
 import time
 import RPi.GPIO as GPIO
-import threading
-import asyncio
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setwarnings(False)
@@ -50,7 +48,7 @@ class GameManager:
 
     def possible_to_place(self):
         for signPosition in self.board:
-            if signPosition == " ":
+            if signPosition == "":
                 return True
             else:
                 return False
