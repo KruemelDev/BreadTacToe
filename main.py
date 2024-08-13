@@ -41,9 +41,7 @@ class GameManager:
         while not self.winning:
             if self.possible_to_place():
                 input_manager.input_handling()
-                if self.check_for_win():
-                    self.winning = True
-                    self.winner = self.currentPlayer.id
+
         self.draw_board(self.currentPlayer.winningBoard, self.currentPlayer.sign)
 
     def possible_to_place(self):
@@ -68,7 +66,12 @@ class GameManager:
             self.currentPlayer.placedPos[pos] = self.currentPlayer.sign
             print("last player was" + str(self.currentPlayer.id))
             print("places at " + str(pos))
+            self.draw_board(self.currentPlayer.placedPos, self.currentPlayer.sign)
+            if self.check_for_win():
+                self.winning = True
+                self.winner = self.currentPlayer.id
             self.next_player()
+
             return True
         else:
             return False
