@@ -8,11 +8,11 @@ gpio_list_buttons = [24, 26]
 
 
 class Player:
-    def __init__(self, id, sign):
+    def __init__(self, id, sign, winning_board):
         self.id = id
         self.sign = sign
         self.placedPos = ["", "", "", "", "", "", "", "", ""]
-        self.winningBoard = ["", "", "", "X", "", "X", "X", "", "", ""]
+        self.winningBoard = ["", "", "", "", "", "", "", "", "", ""]
 
     def place(self, inputManager):
         inputManager.place(self.placedPos)
@@ -122,11 +122,7 @@ class InputManager:
         GPIO.setup(self.buttonLeftPin, GPIO.IN)
         GPIO.setup(self.buttonRightPin, GPIO.IN)
         self.board_to_draw = 1
-
-        self.first_click = 0
-        self.second_click = 0
         self.current_place_pos = 0
-        self.last_clicks = []
 
     def input_handling(self):
         self.right_button()
@@ -148,33 +144,22 @@ class InputManager:
     def left_button(self):
 
         if GPIO.input(self.buttonLeftPin):
-            if self.first_click == 0:
-                self.first_click = time.time()
-                time.sleep(0.08)
+            time.sleep(0.3)
+            if GPIO.input(self.buttonLeftPin):
+                if gameManager.place_sign_and_next_player(self.current_place_pos):
+                    print("placed at pos " + str(self.current_place_pos))
+                    self.current_place_pos = 0
             else:
-                self.second_click = time.time()
-            print("first " + str(self.first_click))
-            print("second " + str(self.second_click))
-            print(gameManager.currentPlayer.placedPos)
-            print("currentPos" + str(self.current_place_pos))
-            if self.second_click - self.first_click > 0.2:
-                gameManager.place_sign_and_next_player(self.current_place_pos)
-                self.first_click = 0
-                self.second_click = 0
-            time.sleep(0.2)
-            if self.second_click != 0:
                 if not self.current_place_pos == 8:
-                    self.first_click = 0
-                    self.second_click = 0
                     self.current_place_pos += 1
                 else:
-                    self.first_click = 0
-                    self.second_click = 0
                     self.current_place_pos = 0
+
+            time.sleep(0.2)
 
 
 if __name__ == "__main__":
-    player1 = Player(1, "X")
-    player2 = Player(2, "0")
+    player1 = Player(1, "X", ["", "X", "", "X", "X", "", "", "", "X"])
+    player2 = Player(2, "0", ["", "0", "0", "0", "0", "", "0", "0", "0"])
     gameManager = GameManager(player1, player2)
     gameManager.start_game()
