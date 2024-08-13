@@ -123,6 +123,7 @@ class InputManager:
         self.first_click = 0
         self.second_click = 0
         self.current_place_pos = 0
+        self.last_clicks = []
 
     def input_handling(self):
         self.right_button()
@@ -146,7 +147,7 @@ class InputManager:
         if GPIO.input(self.buttonLeftPin):
             if self.first_click == 0:
                 self.first_click = time.time()
-                time.sleep(0.15)
+                time.sleep(0.08)
             else:
                 self.second_click = time.time()
             print("first " + str(self.first_click))
@@ -157,7 +158,8 @@ class InputManager:
                 gameManager.place_sign_and_next_player(self.current_place_pos)
                 self.first_click = 0
                 self.second_click = 0
-            else:
+            time.sleep(0.2)
+            if self.second_click != 0:
                 if not self.current_place_pos == 8:
                     self.first_click = 0
                     self.second_click = 0
