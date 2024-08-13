@@ -2,7 +2,7 @@
 
 BreadTacToe is a tic tac toe clone made with a Raspberry Pi 3 Model B Vl.2 and BreadBoards
 
-![](../gifs/BreadTacToe.gif)
+![](https://github.com/KruemelDev/BreadTacToe/gifs/BreadTacToe.gif)
 ## What you need
 - BreadBoards(I recommend three)
 - Raspberry pi
